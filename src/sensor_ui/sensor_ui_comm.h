@@ -1,4 +1,6 @@
 #pragma once
+#include <Arduino.h>
 
 void setupComm();
-void sendTestCommands();
+void sendCommand(String cmd);
+void writeCommand(uint8_t cmd);

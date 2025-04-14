@@ -1,14 +1,11 @@
-#include "motor_logic.h"
+#include "Motor.h"
 
 #define STEP_PIN 5
 #define DIR_PIN 18
 #define ENABLE_PIN 25
 
-// Define the global instance
-MotorControl motor;
-
 // Implement the methods
-MotorControl::MotorControl()
+Motor::Motor()
 {
   isRunning = false;
   stepCount = 0;
@@ -16,7 +13,7 @@ MotorControl::MotorControl()
   updateStepDelay();
 }
 
-void MotorControl::begin()
+void Motor::begin()
 {
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
@@ -25,7 +22,7 @@ void MotorControl::begin()
   digitalWrite(DIR_PIN, LOW);
 }
 
-void MotorControl::stepMotor()
+void Motor::stepMotor()
 {
   if (isRunning)
   {
@@ -37,17 +34,17 @@ void MotorControl::stepMotor()
   }
 }
 
-void MotorControl::setRunning(bool run)
+void Motor::setRunning(bool run)
 {
   isRunning = run;
 }
 
-void MotorControl::reverseDirection()
+void Motor::reverseDirection()
 {
   digitalWrite(DIR_PIN, !digitalRead(DIR_PIN));
 }
 
-void MotorControl::setSpeed(int speed)
+void Motor::setSpeed(int speed)
 {
   if (speed <= 0)
     return;
@@ -55,7 +52,14 @@ void MotorControl::setSpeed(int speed)
   updateStepDelay();
 }
 
-void MotorControl::updateStepDelay()
+void Motor::updateStepDelay()
 {
   stepDelayUs = 1000000UL / (2UL * currentSpeed);
+}
+
+void Motor::debug()
+{
+  Serial.println("--- Motor Status Debug ---");
+  Serial.printf("isRunning: %d\n", isRunning);
+  Serial.printf("currentSpeed: %d\n", currentSpeed);
 }

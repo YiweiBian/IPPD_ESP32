@@ -2,24 +2,22 @@
 #include <Arduino.h>
 
 // Declare the class
-class MotorControl
+class Motor
 {
 public:
   bool isRunning;
   unsigned long stepCount;
   int currentSpeed;
 
-  MotorControl();
+  Motor();
   void begin();
   void stepMotor();
   void setRunning(bool run);
   void reverseDirection();
   void setSpeed(int speed);
+  void debug();
 
 private:
   unsigned long stepDelayUs;
   void updateStepDelay();
 };
-
-// Declare the global motor object
-extern MotorControl motor;
