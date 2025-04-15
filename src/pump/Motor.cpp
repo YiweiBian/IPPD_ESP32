@@ -27,7 +27,7 @@ void Motor::stepMotor()
   if (isRunning)
   {
     digitalWrite(STEP_PIN, HIGH);
-    delayMicroseconds(stepDelayUs);
+    delayMicroseconds(2);
     digitalWrite(STEP_PIN, LOW);
     delayMicroseconds(stepDelayUs);
     stepCount++;

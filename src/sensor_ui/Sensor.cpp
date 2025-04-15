@@ -24,6 +24,8 @@ float Sensor::updateFrequency()
         frequency = count * (1000.0 / interval);
         lastUpdate = millis();
     }
+    Serial.print("Sensor Reading: ");
+    Serial.println(frequency);
     return frequency;
 }
 

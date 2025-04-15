@@ -14,8 +14,8 @@ const unsigned long nextionUpdateInterval = 500;
 
 // motor control
 bool isRunning = false;
-uint16_t pumpFrequency = 3000;
-uint16_t stepIncrement = 500;
+uint16_t pumpFrequency = 1000;
+uint16_t stepIncrement = 100;
 // volatile bool frequencyChanged;
 
 enum CommandType : uint8_t {
@@ -53,7 +53,7 @@ void loop()
   check();
   if (millis() - lastNextionUpdate >= nextionUpdateInterval)
   {
-    nextion.sendStatus(isRunning, sensor.getFrequency(), pumpFrequency/10);
+    nextion.sendStatus(isRunning, sensor.getFrequency(), pumpFrequency);
     lastNextionUpdate = millis();
   }
 }
@@ -92,7 +92,7 @@ void handleCommand(String cmd)
       // }
       else if (cmd == "INC")
       {
-        if (pumpFrequency < 10000)
+        if (pumpFrequency < 2000)
         {
           pumpFrequency += stepIncrement;
           sendCommandPacket(CMD_SET, pumpFrequency);
@@ -126,7 +126,7 @@ void handleCommand(String cmd)
 void handleKeypad(int cmd)
 {
   if (cmd != -1)
-    Serial.println(cmd);
+    // Serial.println(cmd);
   switch (cmd) {
   // case 0:
   //   isRunning = true;

@@ -47,6 +47,13 @@ void Nextion::sendStatus(const bool isRunning, const float sensorFreq, const flo
     port.write(0xFF);
     port.write(0xFF);
     port.write(0xFF);
+    
+    cmd = "bt0.val=";
+    cmd += String(isRunning);
+    port.print(cmd);
+    port.write(0xFF);
+    port.write(0xFF);
+    port.write(0xFF);
 
     cmd = "x0.val=";
     cmd += String((int)(sensorFreq * 10));
@@ -56,7 +63,7 @@ void Nextion::sendStatus(const bool isRunning, const float sensorFreq, const flo
     port.write(0xFF);
 
     cmd = "x1.val=";
-    cmd += String((int)(motorFreq));
+    cmd += String((int)(motorFreq*100/200));
     port.print(cmd);
     port.write(0xFF);
     port.write(0xFF);

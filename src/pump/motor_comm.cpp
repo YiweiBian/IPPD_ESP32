@@ -25,8 +25,8 @@ HardwareSerial espComm(2); // UART2
 void setupMotorComm(Motor& motor)
 {
   espComm.begin(9600, SERIAL_8N1, UART_RX, UART_TX);
-  Serial.begin(115200);
-  Serial.println("🟢 MotorComm: UART2 Initialized");
+  // Serial.begin(115200);
+  // Serial.println("🟢 MotorComm: UART2 Initialized");
 }
 
 void updateSerialReceiver(Motor& motor) {
@@ -48,20 +48,20 @@ void updateSerialReceiver(Motor& motor) {
     switch (packet.command) {
       case CMD_RUN:
         motor.setRunning(true);
-        Serial.println("RUN");
+        // Serial.println("RUN");
         // motor.debug();
         break;
         
       case CMD_STOP:
         motor.setRunning(false);
-        Serial.println("STOP");
+        // Serial.println("STOP");
         // motor.debug();
         break;
         
       case CMD_SET:
         motor.setSpeed(packet.value);
-        Serial.print("SET");
-        Serial.println(packet.value);
+        // Serial.print("SET");
+        // Serial.println(packet.value);
         // motor.debug();
         break;
         
