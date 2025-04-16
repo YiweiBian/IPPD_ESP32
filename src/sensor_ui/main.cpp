@@ -14,8 +14,8 @@ const unsigned long nextionUpdateInterval = 500;
 
 // motor control
 bool isRunning = false;
-uint16_t pumpFrequency = 1000;
-uint16_t stepIncrement = 100;
+uint16_t pumpFrequency = 5000;
+uint16_t stepIncrement = 500;
 // volatile bool frequencyChanged;
 
 enum CommandType : uint8_t {
@@ -92,7 +92,7 @@ void handleCommand(String cmd)
       // }
       else if (cmd == "INC")
       {
-        if (pumpFrequency < 2000)
+        if (pumpFrequency < 10000)
         {
           pumpFrequency += stepIncrement;
           sendCommandPacket(CMD_SET, pumpFrequency);

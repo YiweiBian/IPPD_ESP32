@@ -12,12 +12,12 @@ Motor motor;
 // ------------------- Setup and Loop -------------------
 void setup() {
   motor.begin();
-  motor.setSpeed(2000);     // 200 steps/sec = 60 RPM
-  motor.setRunning(false);  // Start motor immediately
-  setupMotorComm(motor);
+  motor.setSpeed(4000);     // 200 steps/sec = 60 RPM
+  motor.setRunning(true);  // Start motor immediately
+  // setupMotorComm(motor);
 }
  
 void loop() {
   motor.stepMotor();
-  updateSerialReceiver(motor);
+  // updateSerialReceiver(motor);
 }
