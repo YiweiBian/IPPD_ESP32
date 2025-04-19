@@ -1,4 +1,4 @@
-#include "sensor_ui_comm.h"
+#include "Uart.h"
 #include "Nextion.h"
 #include "Sensor.h"
 #include "Keypad.h"
@@ -14,8 +14,9 @@ const unsigned long nextionUpdateInterval = 500;
 
 // motor control
 bool isRunning = false;
-uint16_t pumpFrequency = 5000;
-uint16_t stepIncrement = 500;
+uint16_t pumpFrequency = 2415;
+uint16_t stepIncrement = 345;
+uint16_t PUMP_MAX = 10350;
 // volatile bool frequencyChanged;
 
 enum CommandType : uint8_t {
@@ -53,7 +54,7 @@ void loop()
   check();
   if (millis() - lastNextionUpdate >= nextionUpdateInterval)
   {
-    nextion.sendStatus(isRunning, sensor.getFrequency(), pumpFrequency);
+    nextion.sendStatus(isRunning, sensor.getFlowRate(), pumpFrequency);
     lastNextionUpdate = millis();
   }
 }
@@ -66,42 +67,33 @@ void handleCommand(String cmd)
         sendCommandPacket(CMD_RUN, 0);
         Serial.println("Motor started (Nextion).");
       }
-      else if (cmd == "STOP")
+      else if (cmd == "STO")
       {
         isRunning = false;
         sendCommandPacket(CMD_STOP, 0);
-        // sendCommand("STOP");
         Serial.println("Motor stopped (Nextion).");
       }
-      // else if (cmd == "DIR")
-      // {
-      //   reverseMotorDirection();
-      // }
       else if (cmd == "ABL")
       {
-        Serial.println("Mode set to ABL (Nextion).");
+        PUMP_MAX = 15000;
+        // Serial.println("Mode set to ABL (Nextion).");
       }
       else if (cmd == "BLZ")
       {
-        Serial.println("Mode set to BLZ (Nextion).");
+        PUMP_MAX = 2415;
+        // Serial.println("Mode set to BLZ (Nextion).");
       }
-      // else if (cmd.startsWith("FREQ="))
-      // {
-      //   int freqVal = cmd.substring(5).toInt();
-      //   setPumpFrequency(freqVal);
-      // }
       else if (cmd == "INC")
       {
-        if (pumpFrequency < 10000)
+        if (pumpFrequency < PUMP_MAX)
         {
           pumpFrequency += stepIncrement;
           sendCommandPacket(CMD_SET, pumpFrequency);
-          Serial.println("Frequency increased (Nextion).");
-          // sendCommand(String(pumpFrequency));
+          // Serial.println("Frequency increased (Nextion).");
         }
         else
         {
-          Serial.println("Minimum pump frequency reached (Nextion).");
+          // Serial.println("Minimum pump frequency reached (Nextion).");
         }
       }
       else if (cmd == "DEC")
@@ -110,12 +102,11 @@ void handleCommand(String cmd)
         {
           pumpFrequency -= stepIncrement;
           sendCommandPacket(CMD_SET, pumpFrequency);
-          // sendCommand(String(pumpFrequency));
-          Serial.println("Frequency decreased (Nextion).");
+          // Serial.println("Frequency decreased (Nextion).");
         }
         else
         {
-          Serial.println("Minimum pump frequency reached (Nextion).");
+          // Serial.println("Minimum pump frequency reached (Nextion).");
         }
       }
       else
@@ -133,17 +124,17 @@ void handleKeypad(int cmd)
   //   sendCommandPacket(CMD_RUN, 0);
   //   break;
   case 3:
-    if (pumpFrequency < 10000)
+    if (pumpFrequency < PUMP_MAX)
       pumpFrequency += stepIncrement;
-    else 
-      Serial.println("Max reached! (Keypad)");
+    // else 
+      // Serial.println("Max reached! (Keypad)");
     sendCommandPacket(CMD_SET, pumpFrequency);
     break;
   case 2:
     if (pumpFrequency > stepIncrement)
       pumpFrequency -= stepIncrement;
-    else 
-      Serial.println("Min reached 0! (Keypad)");
+    // else 
+      // Serial.println("Min reached 0! (Keypad)");
     sendCommandPacket(CMD_SET, pumpFrequency);
     break;
   case 1:
@@ -165,8 +156,8 @@ void sendCommandPacket(CommandType cmd, uint16_t value) {
   writeCommand(byte1);
   writeCommand(byte2);
 
-  Serial.print("Sent packet: 0x");
-  Serial.print(byte1, HEX);
-  Serial.print(" 0x");
-  Serial.println(byte2, HEX);
+//   Serial.print("Sent packet: 0x");
+//   Serial.print(byte1, HEX);
+//   Serial.print(" 0x");
+//   Serial.println(byte2, HEX);
 }

@@ -1,9 +1,5 @@
 #include "Motor.h"
 
-#define STEP_PIN 5
-#define DIR_PIN 18
-#define ENABLE_PIN 25
-
 // Implement the methods
 Motor::Motor()
 {
@@ -27,7 +23,7 @@ void Motor::stepMotor()
   if (isRunning)
   {
     digitalWrite(STEP_PIN, HIGH);
-    delayMicroseconds(2);
+    delayMicroseconds(stepDelayUs);
     digitalWrite(STEP_PIN, LOW);
     delayMicroseconds(stepDelayUs);
     stepCount++;

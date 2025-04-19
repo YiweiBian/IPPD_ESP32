@@ -1,12 +1,5 @@
 #pragma once
-#include <Arduino.h>
 #include "Nextion.h"
-
-// ----------------------- Nextion Setup -----------------------
-// We'll use UART1 for Nextion using safe pins (avoid flash pins)
-// Nextion TX -> ESP32 RX on GPIO32, Nextion RX -> ESP32 TX on GPIO33
-#define NEXTION_RX_PIN 32 // ESP32 RX (receives from Nextion TX)
-#define NEXTION_TX_PIN 33 // ESP32 TX (sends to Nextion RX)
 
 // ----------------------- Nextion Buffer Setup -----------------------
 Nextion::Nextion(HardwareSerial& port) : port(port), bufIndex(0) {}
@@ -33,6 +26,7 @@ String Nextion::getCommand()
                 }
                 cmd.trim();
                 bufIndex = 0;
+                Serial.println(cmd);
                 return cmd;
             }
         }
@@ -55,6 +49,14 @@ void Nextion::sendStatus(const bool isRunning, const float sensorFreq, const flo
     port.write(0xFF);
     port.write(0xFF);
 
+    cmd = "bt0.txt=\"";
+    cmd += (isRunning ? "Stop" : "Run");
+    cmd += "\"";
+    port.print(cmd);
+    port.write(0xFF);
+    port.write(0xFF);
+    port.write(0xFF);
+
     cmd = "x0.val=";
     cmd += String((int)(sensorFreq * 10));
     port.print(cmd);
@@ -63,7 +65,7 @@ void Nextion::sendStatus(const bool isRunning, const float sensorFreq, const flo
     port.write(0xFF);
 
     cmd = "x1.val=";
-    cmd += String((int)(motorFreq/10));
+    cmd += String((int)(motorFreq/69));
     port.print(cmd);
     port.write(0xFF);
     port.write(0xFF);

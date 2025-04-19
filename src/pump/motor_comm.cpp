@@ -1,9 +1,6 @@
 #include <Arduino.h>
 #include "motor_comm.h"
 
-#define UART_RX 16
-#define UART_TX 17
-
 enum CommandType : uint8_t {
   CMD_NONE     = 0x0, // No command / uninitialized
   CMD_RUN = 0x1, // Increase command
@@ -32,7 +29,6 @@ void setupMotorComm(Motor& motor)
 void updateSerialReceiver(Motor& motor) {
   // Read any available bytes without blocking.
   if (espComm.available() && packetIndex < 2) {
-    // Serial.println("Hmm...");
     packetBuffer[packetIndex++] = espComm.read();
   }
   
@@ -43,7 +39,6 @@ void updateSerialReceiver(Motor& motor) {
     packet.command = packetBuffer[0] >> 6;
     // Reconstruct the value from the lower 6 bits of byte1 and the full byte2.
     packet.value = ((uint16_t)(packetBuffer[0] & 0x3F) << 8) | packetBuffer[1];
-    // Serial.println("Received...");
     // Process the command.
     switch (packet.command) {
       case CMD_RUN:
@@ -71,38 +66,5 @@ void updateSerialReceiver(Motor& motor) {
     }
     // Reset the index for the next packet.
     packetIndex = 0;
-  }
-}
-
-void handleMotorCommands(Motor& motor)
-{
-  if (espComm.available())
-  {
-    String cmd = espComm.readStringUntil('\n');
-    cmd.trim();
-    Serial.print("Received: ");
-    Serial.println(cmd);
-
-    if (cmd == "RUN")
-    {
-      motor.setRunning(true);
-    }
-    else if (cmd == "STO")
-    {
-      motor.setRunning(false);
-    }
-    // else if ()
-    // {
-    //   motor.reverseDirection();
-    // }
-    // else if (cmd.startsWith("FREQ="))
-    // {
-    //   int val = cmd.substring(5).toInt();
-    //   motor.setSpeed(val);
-    // }
-    // else
-    // {
-    //   Serial.println("⚠️ Unknown command");
-    // }
   }
 }
