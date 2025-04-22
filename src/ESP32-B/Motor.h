@@ -7,7 +7,6 @@ class Motor
 {
 public:
   bool isRunning;
-  unsigned long stepCount;
   int currentSpeed;
 
   Motor();
@@ -16,7 +15,7 @@ public:
   void setRunning(bool run);
   void reverseDirection();
   void setSpeed(int speed);
-  void debug();
+  // void debug();
 
 private:
   unsigned long stepDelayUs;

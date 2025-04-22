@@ -1,10 +1,8 @@
 #include "Motor.h"
 
-// Implement the methods
 Motor::Motor()
 {
   isRunning = false;
-  stepCount = 0;
   currentSpeed = 200;
   updateStepDelay();
 }
@@ -20,13 +18,12 @@ void Motor::begin()
 
 void Motor::stepMotor()
 {
-  if (isRunning)
-  {
+  if (isRunning) // if running
+  { // create a step pulse
     digitalWrite(STEP_PIN, HIGH);
     delayMicroseconds(stepDelayUs);
     digitalWrite(STEP_PIN, LOW);
     delayMicroseconds(stepDelayUs);
-    stepCount++;
   }
 }
 
@@ -50,12 +47,12 @@ void Motor::setSpeed(int speed)
 
 void Motor::updateStepDelay()
 {
-  stepDelayUs = 1000000UL / (2UL * currentSpeed);
+  stepDelayUs = 1000000UL / (2UL * currentSpeed); // defined by manufacturer
 }
 
-void Motor::debug()
-{
-  Serial.println("--- Motor Status Debug ---");
-  Serial.printf("isRunning: %d\n", isRunning);
-  Serial.printf("currentSpeed: %d\n", currentSpeed);
-}
+// void Motor::debug()
+// {
+//   Serial.println("--- Motor Status Debug ---");
+//   Serial.printf("isRunning: %d\n", isRunning);
+//   Serial.printf("currentSpeed: %d\n", currentSpeed);
+// }

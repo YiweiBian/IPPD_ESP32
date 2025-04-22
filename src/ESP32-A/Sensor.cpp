@@ -15,17 +15,19 @@ void Sensor::handlePulse()
 
 float Sensor::updateFrequency()
 {
-    if (millis() - lastUpdate >= interval) {
+    if (millis() - lastUpdate >= interval) // if sensor interval reached
+    {
         noInterrupts();
         unsigned long count = pulseCount;
         pulseCount = 0;
         interrupts();
 
+        // ---- TODO: change the frequency defining instruction based on the testing result ----
         frequency = count * (1000.0 / interval);
-        lastUpdate = millis();
+        // ---- TODO: end
+
+        lastUpdate = millis(); // mark the timestamp for interval checking
     }
-    // Serial.print("Sensor Reading: ");
-    // Serial.println(frequency);
     return frequency;
 }
 

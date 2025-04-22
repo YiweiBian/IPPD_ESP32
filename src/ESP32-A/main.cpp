@@ -4,21 +4,22 @@
 #include "Keypad.h"
 #include <Arduino.h>
 
+// Define hardware module classes
 Sensor sensor(500);
 Keypad keypad;
+Nextion nextion(Serial1);
 
-Nextion nextion(Serial1);  // UART1: GPIO32/33
-HardwareSerial nextionSerial(1);
+// Nextion update states
 unsigned long lastNextionUpdate = 0;
 const unsigned long nextionUpdateInterval = 500;
 
-// motor control
+// motor control states
 bool isRunning = false;
 uint16_t pumpFrequency = 2415;
 uint16_t stepIncrement = 345;
 uint16_t PUMP_MAX = 10350;
-// volatile bool frequencyChanged;
 
+// ESP32-ESP32 communiation protocol
 enum CommandType : uint8_t {
   CMD_NONE = 0x0,
   CMD_RUN = 0x1,
@@ -31,6 +32,7 @@ void handleKeypad(int cmd);
 void check();
 void sendCommandPacket(CommandType cmd, uint16_t value);
 
+// interrupt service routine for sensor
 void IRAM_ATTR onPulse() { sensor.handlePulse(); }
 
 void setup()
@@ -52,6 +54,8 @@ void loop()
     handleCommand(cmd);
   handleKeypad(keypad.read());
   check();
+
+  // update Nextion every 500 ms
   if (millis() - lastNextionUpdate >= nextionUpdateInterval)
   {
     nextion.sendStatus(isRunning, sensor.getFlowRate(), pumpFrequency);
@@ -65,23 +69,19 @@ void handleCommand(String cmd)
       {
         isRunning = true;
         sendCommandPacket(CMD_RUN, 0);
-        Serial.println("Motor started (Nextion).");
       }
       else if (cmd == "STO")
       {
         isRunning = false;
         sendCommandPacket(CMD_STOP, 0);
-        Serial.println("Motor stopped (Nextion).");
       }
       else if (cmd == "ABL")
       {
-        PUMP_MAX = 15000;
-        // Serial.println("Mode set to ABL (Nextion).");
+        PUMP_MAX = 15000; // 140mL/min
       }
       else if (cmd == "BLZ")
       {
-        PUMP_MAX = 2415;
-        // Serial.println("Mode set to BLZ (Nextion).");
+        PUMP_MAX = 2415; // 40mL/min
       }
       else if (cmd == "INC")
       {
@@ -89,11 +89,6 @@ void handleCommand(String cmd)
         {
           pumpFrequency += stepIncrement;
           sendCommandPacket(CMD_SET, pumpFrequency);
-          // Serial.println("Frequency increased (Nextion).");
-        }
-        else
-        {
-          // Serial.println("Minimum pump frequency reached (Nextion).");
         }
       }
       else if (cmd == "DEC")
@@ -102,42 +97,38 @@ void handleCommand(String cmd)
         {
           pumpFrequency -= stepIncrement;
           sendCommandPacket(CMD_SET, pumpFrequency);
-          // Serial.println("Frequency decreased (Nextion).");
         }
-        else
-        {
-          // Serial.println("Minimum pump frequency reached (Nextion).");
-        }
-      }
-      else
-      {
-        Serial.println("⚠️ Unknown Nextion command received.");
       }
 }
 void handleKeypad(int cmd)
-{
-  if (cmd != -1)
-    // Serial.println(cmd);
-  switch (cmd) {
+{ 
+switch (cmd) {
   // case 0:
   //   isRunning = true;
   //   sendCommandPacket(CMD_RUN, 0);
   //   break;
-  case 3:
+  
+  case 3: // increse button
+
+    // increase the pumpFrequency by predefined step
     if (pumpFrequency < PUMP_MAX)
       pumpFrequency += stepIncrement;
-    // else 
-      // Serial.println("Max reached! (Keypad)");
+
+    // send the increased pumpFrequency value to ESP32-B 
     sendCommandPacket(CMD_SET, pumpFrequency);
     break;
-  case 2:
+
+  case 2: // decrease button
+
+    // decrease the pumpFrequency by predefined step
     if (pumpFrequency > stepIncrement)
       pumpFrequency -= stepIncrement;
-    // else 
-      // Serial.println("Min reached 0! (Keypad)");
+
+    // send the decreased pumpFrequency value to ESP32-B
     sendCommandPacket(CMD_SET, pumpFrequency);
     break;
-  case 1:
+
+  case 1: // run/stop toggle button
     isRunning = !isRunning;
     sendCommandPacket((isRunning ? CMD_RUN : CMD_STOP), pumpFrequency);
     break;
@@ -148,16 +139,15 @@ void check()
 
 }
 
-void sendCommandPacket(CommandType cmd, uint16_t value) {
+void sendCommandPacket(CommandType cmd, uint16_t value) 
+{
+  // encode the command and the value into 2-byte instruction
+  // (More detail included in design report)
   uint8_t byte1, byte2;
   byte1 = (cmd << 6) | ((value >> 8) & 0x3F);
   byte2 = value & 0xFF;
   
+  // send the encoded instruction
   writeCommand(byte1);
   writeCommand(byte2);
-
-//   Serial.print("Sent packet: 0x");
-//   Serial.print(byte1, HEX);
-//   Serial.print(" 0x");
-//   Serial.println(byte2, HEX);
 }
